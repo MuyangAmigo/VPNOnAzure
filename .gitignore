@@ -1,0 +1,26 @@
+# Environment config (contains personal settings)
+.env
+
+# WireGuard keys (private keys and preshared keys)
+keys/
+
+# Generated client configs
+configs/*.conf
+configs/*.txt
+configs/*.qr.txt
+
+# Legacy certificate files
+*.p12
+*.pfx
+*.csr
+*.srl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Azure deployment outputs
+*.log
+
+# Claude Code local settings
+.claude/

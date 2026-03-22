@@ -1,0 +1,64 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - wireguard
+  - iptables-persistent
+
+write_files:
+  - path: /etc/wireguard/wg0.conf
+    permissions: '0600'
+    content: |
+      [Interface]
+      Address = 10.0.0.1/24
+      ListenPort = 443
+      PrivateKey = {{SERVER_PRIVATE_KEY}}
+      PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT
+      PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT
+
+      [Peer]
+      # peer1
+      PublicKey = {{PEER1_PUBLIC_KEY}}
+      PresharedKey = {{PEER1_PSK}}
+      AllowedIPs = 10.0.0.2/32
+
+      [Peer]
+      # peer2
+      PublicKey = {{PEER2_PUBLIC_KEY}}
+      PresharedKey = {{PEER2_PSK}}
+      AllowedIPs = 10.0.0.3/32
+
+      [Peer]
+      # peer3
+      PublicKey = {{PEER3_PUBLIC_KEY}}
+      PresharedKey = {{PEER3_PSK}}
+      AllowedIPs = 10.0.0.4/32
+
+      [Peer]
+      # peer4
+      PublicKey = {{PEER4_PUBLIC_KEY}}
+      PresharedKey = {{PEER4_PSK}}
+      AllowedIPs = 10.0.0.5/32
+
+      [Peer]
+      # peer5
+      PublicKey = {{PEER5_PUBLIC_KEY}}
+      PresharedKey = {{PEER5_PSK}}
+      AllowedIPs = 10.0.0.6/32
+
+      [Peer]
+      # peer6
+      PublicKey = {{PEER6_PUBLIC_KEY}}
+      PresharedKey = {{PEER6_PSK}}
+      AllowedIPs = 10.0.0.7/32
+
+  - path: /etc/sysctl.d/99-wireguard.conf
+    content: |
+      net.ipv4.ip_forward = 1
+
+runcmd:
+  - sysctl -p /etc/sysctl.d/99-wireguard.conf
+  - systemctl enable wg-quick@wg0
+  - systemctl start wg-quick@wg0
+  - netfilter-persistent save
